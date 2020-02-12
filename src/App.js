@@ -23,14 +23,15 @@ const particlesOptions = {
 				enable: true,
 				mode: 'repulse'
 			},
-			resize: true
-		},
-		modes: {
-			repulse: {
-				distance: 200,
-				duration: 0.4
+			resize: true,
+			modes: {
+				repulse: {
+					distance: 200,
+					duration: 0.4
+				}
 			}
 		}
+		
 	}
 }
 
