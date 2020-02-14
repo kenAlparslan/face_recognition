@@ -52,7 +52,7 @@ class App extends React.Component {
 			imageURL: '',
 			box: {},
 			route: 'signin',
-			isSignedIn: 'false'
+			isSignedIn: false
 		}
 	}
 
@@ -70,7 +70,7 @@ class App extends React.Component {
 	}
 
 	displayBox = (box) => {
-		console.log(box);
+		console.log(box); // need it for recognizing for multiple faces
 		this.setState({box: box});
 	}
 
@@ -94,25 +94,26 @@ class App extends React.Component {
 	}
 
 	render() {
-	  return (
-	    <div className="App">
-	    <Particles className='particles'
-	              params={particlesOptions}
-	      />
-	      <Navigation onRouteChange={this.onRouteChange} />
-	    { this.state.route === 'home' 
-	    	? <div> 
-		      	<Logo />
-			    <Rank />
-			    <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
-			    <FaceRecognition box = {this.state.box} imageURL={this.state.imageURL} /> 
-		    </div>
-		    : this.state.route === 'signin'
-		    ? <SignIn onRouteChange={this.onRouteChange}/>
-	      	: <Register onRouteChange={this.onRouteChange} />
-	  	}
-	    </div>
-	  );
+		const { isSignedIn, imageURL, route, box } = this.state
+		return (
+			<div className="App">
+				<Particles className='particles'
+				          params={particlesOptions}
+				  />
+				  <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
+				{ route === 'home' 
+					? <div> 
+				      	<Logo />
+					    <Rank />
+					    <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
+					    <FaceRecognition box = {box} imageURL={imageURL} /> 
+				    </div>
+				    : route === 'signin'
+				    ? <SignIn onRouteChange={this.onRouteChange}/>
+				  	: <Register onRouteChange={this.onRouteChange} />
+					}
+			</div>
+		);
 	}
 }
 
