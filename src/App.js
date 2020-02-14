@@ -49,7 +49,8 @@ class App extends React.Component {
 		this.state = {
 			input: '',
 			imageURL: '',
-			box: {}
+			box: {},
+			route: 'signin'
 		}
 	}
 
@@ -80,20 +81,27 @@ class App extends React.Component {
 		app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
 		.then(response => this.displayBox(this.calculateFaceLocation(response)))
 		.catch(err => console.log(err));
-  		
 	}
+onRouteChange = (route) => {
+	this.setState({route: route})
+}
+
 	render() {
 	  return (
 	    <div className="App">
 	    <Particles className='particles'
 	              params={particlesOptions}
 	      />
-	      <Navigation />
-	      <SignIn />
-	      <Logo />
-	      <Rank />
-	      <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
-	      <FaceRecognition box = {this.state.box} imageURL={this.state.imageURL} /> 
+	      <Navigation onRouteChange={this.onRouteChange} />
+	    { this.state.route === 'signin' 
+	    	? <SignIn onRouteChange={this.onRouteChange}/>
+	      	: <div> 
+		      	<Logo />
+			    <Rank />
+			    <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
+			    <FaceRecognition box = {this.state.box} imageURL={this.state.imageURL} /> 
+		    </div>
+	  	}
 	    </div>
 	  );
 	}
