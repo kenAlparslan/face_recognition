@@ -89,12 +89,12 @@ class App extends React.Component {
 			leftCol: clarifaiFace.left_col * width,
 			topRow: clarifaiFace.top_row * height,
 			rightCol: width - (clarifaiFace.right_col * width),
-			bottomRow: height - (clarifaiFace.bottom_row * height)
+			bottomRow: (height - (clarifaiFace.bottom_row * height))+5
 		}
 	}
 
 	displayBox = (box) => {
-		console.log(box); // need it for recognizing for multiple faces
+		//console.log(box); // need it for recognizing for multiple faces
 		this.setState({box: box});
 	}
 
@@ -102,10 +102,26 @@ class App extends React.Component {
 		this.setState({input: event.target.value});
 	}
 
-	onButtonSubmit = () => {
+	onPictureSubmit = () => {
 		this.setState({imageURL: this.state.input})
 		app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-		.then(response => this.displayBox(this.calculateFaceLocation(response)))
+		.then(response => {
+			if(response)
+			{
+				fetch('http://localhost:3000/image', {
+					method: 'put',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						id: this.state.user.id
+					})
+				})
+				.then(resp => resp.json())
+				.then(count => {
+					this.setState(Object.assign(this.state.user, {entries: count}))
+				})
+			}
+			this.displayBox(this.calculateFaceLocation(response))
+		})
 		.catch(err => console.log(err));
 	}
 	onRouteChange = (route) => {
@@ -129,7 +145,7 @@ class App extends React.Component {
 					? <div> 
 				      	<Logo />
 					    <Rank name={this.state.user.name} entries={this.state.user.entries} />
-					    <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit} />
+					    <ImageLinkForm onInputChange={this.onInputChange} onPictureSubmit={this.onPictureSubmit} />
 					    <FaceRecognition box = {box} imageURL={imageURL} /> 
 				    </div>
 				    : route === 'signin'
