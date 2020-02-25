@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import Clarifai from 'clarifai'
 import Navigation from './components/Navigation/Navigation';
 import SignIn from './components/SignIn/SignIn';
 import Register from './components/Register/Register';
@@ -9,10 +8,6 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import Rank from './components/Rank/Rank';
 import Particles from 'react-particles-js';
-
-const app = new Clarifai.App({
- apiKey: '4bed7e7449134169a9b3119416ba66dd'
-});
 
 
 const particlesOptions = {
@@ -44,23 +39,24 @@ const particlesOptions = {
 	}
 }
 
+const initialState = {
+	input: '',
+	imageURL: '',
+	box: {},
+	route: 'signin',
+	isSignedIn: false,
+	user: {
+		id: '',
+		name: '',
+		email: '',
+		entries: 0,
+		joined: ''
+	}
+}
 class App extends React.Component {
 	constructor() {
 		super();
-		this.state = {
-			input: '',
-			imageURL: '',
-			box: {},
-			route: 'signin',
-			isSignedIn: false,
-			user: {
-				id: '',
-				name: '',
-				email: '',
-				entries: 0,
-				joined: ''
-			}
-		}
+		this.state = initialState;
 	}
 
 	// componentDidMount() {
@@ -75,8 +71,8 @@ class App extends React.Component {
 			name: data.name,
 			email: data.email,
 			entries: data.entries,
-			joined: data.joined
-
+			joined: data.joined,
+			
 		}})
 	}
 
@@ -104,7 +100,14 @@ class App extends React.Component {
 
 	onPictureSubmit = () => {
 		this.setState({imageURL: this.state.input})
-		app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+		fetch('http://localhost:3000/imageurl', {
+			method: 'post',
+			headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({
+				input: this.state.input
+			})
+		})
+		.then(resp => resp.json())
 		.then(response => {
 			if(response)
 			{
@@ -118,6 +121,8 @@ class App extends React.Component {
 				.then(resp => resp.json())
 				.then(count => {
 					this.setState(Object.assign(this.state.user, {entries: count}))
+				}).catch(err => {
+					console.log('Failed to return the image');
 				})
 			}
 			this.displayBox(this.calculateFaceLocation(response))
@@ -126,7 +131,7 @@ class App extends React.Component {
 	}
 	onRouteChange = (route) => {
 		if(route === 'signout') {
-			this.setState({isSignedIn: false});
+			this.setState(initialState);
 		} else if(route === 'home') {
 			this.setState({isSignedIn: true})
 		}
